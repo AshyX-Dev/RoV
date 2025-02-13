@@ -15,4 +15,8 @@ class Session{
         $this->file_id = $data['file_id'];
     }
 
+    public function createDumpObject(): string {
+        return var_dump($this->dataArray);
+    }
+
 }

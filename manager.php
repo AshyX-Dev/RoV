@@ -4,16 +4,17 @@ include_once("interface.php");
 
 class Manager{
     private $db;
-    private $cur;
+    private $pdo;
 
     public function __construct(?string $database_path){
         $this->db = $database_path;
-        $this->cur = new SQLite3($this->db);
+        $this->pdo = new PDO("sqlite:rov.sqlite3");
+        $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $this->setupDbs();
     }
 
     private function setupDbs(): void {
-        $this->cur->exec("CREATE TABLE IF NOT EXISTS session (
+        $this->pdo->exec("CREATE TABLE IF NOT EXISTS session (
             sid INTEGER PRIMARY KEY,
             uptime TEXT,
             locks TEXT,
@@ -25,11 +26,12 @@ class Manager{
             file_id TEXT
         ) ");
 
-        $result = $this->cur->query("SELECT * FROM session");
-        while ($row = $result->fetchArray(SQLITE3_ASSOC)){
+        $result = $this->pdo->query("SELECT * FROM session");
+        $sessions = $result->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($sessions as $row){
             if ($row['sid'] === 1) break;
             else {
-                $statement = $this->cur->prepare("INSERT INTO session (
+                $statement = $this->pdo->prepare("INSERT INTO session (
                     sid,
                     locks,
                     alpha_range,
@@ -49,26 +51,36 @@ class Manager{
                     :file_id
                 )");
                 
-                $statement->bindValue(":sid", 1, SQLITE3_INTEGER);
-                $statement->bindValue(":locks", "[]");
-                $statement->bindValue(":alpha_range", 10, SQLITE3_INTEGER);
-                $statement->bindValue(":stickers", "[]");
-                $statement->bindValue(":is_media", 0, SQLITE3_INTEGER);
-                $statement->bindValue(":media_type", "");
-                $statement->bindValue(":media_caption", "");
-                $statement->bindValue(":file_id", "");
+                $null_data = "";
+                $null_array = "[]";
+                $sid = 1;
+                $range = 10;
+                $is_media = 0;
+
+                $statement->bindParam(":sid", $sid);
+                $statement->bindParam(":locks", $null_array);
+                $statement->bindParam(":alpha_range", $range);
+                $statement->bindParam(":stickers", $null_array);
+                $statement->bindParam(":is_media", $is_media);
+                $statement->bindParam(":media_type", $null_data);
+                $statement->bindParam(":media_caption", $null_data);
+                $statement->bindParam(":file_id", $null_data);
                 $statement->execute();
+                break;
             }
         }
+
+        echo "[RoV] database passed \n";
+
     }
 
-    public function getFirstSession(): ?array {
-        $result = $this->cur->query("SELECT * FROM session LIMIT 1");
-        return $result->fetchArray(SQLITE3_ASSOC);
+    public function getSession(): ?Session {
+        $result = $this->pdo->query("SELECT * FROM session");
+        return new Session($result->fetchAll()[0]);
     }    
 
 }
 
 $mng = new Manager("./dbdbdb.sqlite3");
-$firstSession = $mng->getFirstSession();
-print_r($firstSession);
+$ss = $mng->getSession();
+echo $ss->createDumpObject();
