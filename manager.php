@@ -1,5 +1,7 @@
 <?php
 
+include_once("interface.php");
+
 class Manager{
     private $db;
     private $cur;
@@ -60,6 +62,13 @@ class Manager{
         }
     }
 
+    public function getFirstSession(): ?array {
+        $result = $this->cur->query("SELECT * FROM session LIMIT 1");
+        return $result->fetchArray(SQLITE3_ASSOC);
+    }    
+
 }
 
 $mng = new Manager("./dbdbdb.sqlite3");
+$firstSession = $mng->getFirstSession();
+print_r($firstSession);
