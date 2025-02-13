@@ -5,7 +5,7 @@ class Session{
 
     public function __construct($data){
         $this->dataArray = $data;
-        if (!($this->dataArray === null)){
+        if (!($this->dataArray === null) || !is_array($this->dataArray) || count($this->dataArray) < 1){
             $this->sid = $data['sid'];
             $this->uptime = $data['uptime'];
             $this->alpha_range = $data['alpha_range'];

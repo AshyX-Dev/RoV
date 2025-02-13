@@ -1,5 +1,7 @@
 <?php
 
+date_default_timezone_set("Asia/Tehran");
+
 include_once("interface.php");
 
 class Manager{
@@ -21,10 +23,11 @@ class Manager{
             $null_string = "";
             $null_array_string = "[]";
             $null_int = 0;
+            $uptime = date("D M d H:i:s Y", time());
 
             $stmt = $this->pdo->prepare("INSERT INTO session ( sid, uptime, locks, alpha_range, stickers, is_media, media_type, media_caption, file_id ) VALUES ( :sid, :uptime, :locks, :alpha_range, :stickers, :is_media, :media_type, :media_caption, :file_id )");
             $stmt->bindParam(":sid", $sid);
-            $stmt->bindParam(":uptime", $null_string);
+            $stmt->bindParam(":uptime", $uptime);
             $stmt->bindParam(":locks", $null_array_string);
             $stmt->bindParam(":alpha_range", $null_int);
             $stmt->bindParam(":stickers", $null_array_string);
@@ -45,6 +48,16 @@ class Manager{
     public function getSession(): Session {
         $session = $this->see()[0];
         return new Session($session);
+    }
+
+    public function getUptime(): mixed {
+        $session = $this->getSession();
+        return $session->uptime;
+    }
+
+    public function getLocks(): mixed {
+        $session = $this->getSession();
+        return $session->locks;
     }
 
 }
