@@ -16,12 +16,21 @@ class Manager{
 
     private function sdbs(){
         $this->pdo->exec("CREATE TABLE IF NOT EXISTS session ( sid INTEGER PRIMARY KEY, uptime TEXT ) ");
+        $result = $this->see();
+        if (count(array_keys($result)) === 0){
+            $stmt = $this->pdo->prepare("INSERT INTO session ( sid, uptime ) VALUES ( :sid, :uptime )");
+            $sid = 1;
+            $uptime = "";
+            $stmt->bindParam(":sid", $sid);
+            $stmt->bindParam(":uptime", $uptime);
+            $stmt->execute();
+        }
     }
 
     public function see(){
-        $result = $this->pdo->query("SELECT * FROM session");
-        $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        return $users;
+        $stmt = $this->pdo->query("SELECT * FROM session");
+        $sessions = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $sessions;
     }
 
 }
