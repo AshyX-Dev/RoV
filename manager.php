@@ -27,6 +27,7 @@ class Manager{
             $stmt->bindParam(":uptime", $null_string);
             $stmt->bindParam(":locks", $null_array_string);
             $stmt->bindParam(":alpha_range", $null_int);
+            $stmt->bindParam(":stickers", $null_array_string);
             $stmt->bindParam(":is_media", $null_int);
             $stmt->bindParam(":media_type", $null_string);
             $stmt->bindParam(":media_caption", $null_string);
@@ -35,17 +36,21 @@ class Manager{
         }
     }
 
-    public function see(){
+    private function see(){
         $stmt = $this->pdo->query("SELECT * FROM session");
         $sessions = $stmt->fetchAll(PDO::FETCH_ASSOC);
         return $sessions;
+    }
+
+    public function getSession(): Session {
+        $session = $this->see()[0];
+        return new Session($session);
     }
 
 }
 
 
 $mng = new Manager("dndnd");
-echo var_dump($mng->see());
-// echo $mng->see();
+echo $mng->getSession()->createDumpObject();
 
 ?>
