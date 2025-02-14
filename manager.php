@@ -9,6 +9,8 @@ class Manager{
     private $sid;
     private $booleanTrue;
     private $booleanFalse;
+    private $intTrue;
+    private $intFalse;
 
     public function __construct(){
         $this->pdo = new PDO("sqlite:rov.sqlite3");
@@ -16,6 +18,8 @@ class Manager{
         $this->sid = 1;
         $this->booleanTrue = true;
         $this->booleanFalse = false;
+        $this->intTrue = 1;
+        $this->intFalse = 0;
         $this->setupDatabase();
     }
 
@@ -197,8 +201,8 @@ class Manager{
 
     public function setMediaActivition(bool $status): array {
         $stmt = $this->pdo->prepare("UPDATE session SET is_media = :is_media WHERE sid = :sid");
-        if ($status === true) { $stmt->bindParam(":is_media", (int)$this->booleanTrue); }
-        else { $stmt->bindParam(":is_media", (int)$this->booleanFalse); }
+        if ($status === true) { $stmt->bindParam(":is_media", $this->intTrue); }
+        else { $stmt->bindParam(":is_media", $this->intFalse); }
         $stmt->bindParam(":sid", $this->sid);
         $stmt->execute();
         return [
@@ -317,27 +321,5 @@ class Manager{
     }
 
 }
-
-
-$mng = new Manager();
-echo "One Mute\n";
-$mng->addMute(3232);
-echo $mng->getSession()->createDumpObject();
-echo "\nRemove\n";
-$mng->removeMute(3232);
-echo $mng->getSession()->createDumpObject();
-echo "\nLoop\n";
-for ($i = 0;$i <= 5;$i++){
-    $mng->addMute(5454);
-}
-echo $mng->getSession()->createDumpObject();
-echo "\nRemove More one\n";
-$mng->removeMute(5454);
-echo "\nLoop2\n";
-for ($i = 0;$i <= 5;$i++){
-    $mng->addMute(5454);
-}
-echo "\nClear\n";
-$mng->clearMutes();
 
 ?>
