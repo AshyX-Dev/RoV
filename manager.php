@@ -5,14 +5,12 @@ date_default_timezone_set("Asia/Tehran");
 include_once("interface.php");
 
 class Manager{
-    private $database_path;
     private $pdo;
     private $sid;
     private $booleanTrue;
     private $booleanFalse;
 
-    public function __construct(string $database){
-        $this->database_path = $database;
+    public function __construct(){
         $this->pdo = new PDO("sqlite:rov.sqlite3");
         $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $this->sid = 1;
@@ -285,10 +283,10 @@ class Manager{
         }
     }
 
-    public function removeMutes(int $userid): array {
+    public function removeMute(int $userid): array {
         $mutes = $this->getMutes();
         if ($mutes !== null && isset($mutes[$userid])){
-            unset($mutes[$userid]);
+            unset($mutes[array_search($userid, $mutes)]);
             $enc_mutes = json_encode($mutes);
             
             $stmt = $this->pdo->prepare("UPDATE session SET mutes = :mutes WHERE sid = :sid");
@@ -301,7 +299,7 @@ class Manager{
             ];
         }else{
             return [
-                "status" => "LOCKS_ERROR",
+                "status" => "MUTES_ERROR",
                 "message" => "list is null or user not in mutes yet"
             ];
         }
