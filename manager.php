@@ -106,7 +106,7 @@ class Manager{
 
     public function addLock(int $userid): array {
         $locks = $this->getLocks();
-        if ($locks !== null && !isset($locks[$userid])){
+        if ($locks !== null && !in_array($userid, $locks)){
             array_push($locks, $userid);
             $enc_locks = json_encode($locks);
 
@@ -128,8 +128,8 @@ class Manager{
 
     public function removeLock(int $userid): array {
         $locks = $this->getLocks();
-        if ($locks !== null && isset($locks[$userid])){
-            unset($locks[$userid]);
+        if ($locks !== null && in_array($userid, $locks)){
+            unset($locks[array_search($userid, $locks)]);
             $enc_locks = json_encode($locks);
             
             $stmt = $this->pdo->prepare("UPDATE session SET locks = :locks WHERE sid = :sid");
@@ -263,7 +263,7 @@ class Manager{
 
     public function addMute(int $userid): array {
         $mutes = $this->getMutes();
-        if ($mutes !== null && !isset($mutes[$userid])){
+        if ($mutes !== null && !in_array($userid, $mutes)){
             array_push($mutes, $userid);
             $enc_mutes = json_encode($mutes);
 
@@ -285,7 +285,7 @@ class Manager{
 
     public function removeMute(int $userid): array {
         $mutes = $this->getMutes();
-        if ($mutes !== null && isset($mutes[$userid])){
+        if ($mutes !== null && in_array($userid, $mutes)){
             unset($mutes[array_search($userid, $mutes)]);
             $enc_mutes = json_encode($mutes);
             
@@ -319,7 +319,25 @@ class Manager{
 }
 
 
-// $mng = new Manager("dndnd");
-// echo $mng->getSession()->createDumpObject();
+$mng = new Manager();
+echo "One Mute\n";
+$mng->addMute(3232);
+echo $mng->getSession()->createDumpObject();
+echo "\nRemove\n";
+$mng->removeMute(3232);
+echo $mng->getSession()->createDumpObject();
+echo "\nLoop\n";
+for ($i = 0;$i <= 5;$i++){
+    $mng->addMute(5454);
+}
+echo $mng->getSession()->createDumpObject();
+echo "\nRemove More one\n";
+$mng->removeMute(5454);
+echo "\nLoop2\n";
+for ($i = 0;$i <= 5;$i++){
+    $mng->addMute(5454);
+}
+echo "\nClear\n";
+$mng->clearMutes();
 
 ?>
